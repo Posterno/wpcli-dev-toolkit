@@ -1,0 +1,27 @@
+{
+	"name": "posterno/wpcli-dev-toolkit",
+	"type": "wp-cli-package",
+	"description": "WP-CLI WP-CLI toolkit to speed up testing of Posterno.",
+	"keywords": [ "wp-cli", "posterno", "wordpress", "bp" ],
+	"homepage": "https://github.com/Posterno/wpcli-dev-toolkit",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Posterno",
+			"homepage": "https://posterno.com"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/Posterno/wpcli-dev-toolkit/issues",
+		"source": "https://github.com/Posterno/wpcli-dev-toolkit"
+	},
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "files": [ "wp-cli-posterno-dev.php" ]
+    },
+    "require": {
+        "php": ">=5.4",
+        "wp-cli/wp-cli": ">=0.23.0"
+    }
+}
