@@ -62,12 +62,40 @@ class Generate extends PNOCommand {
 
 	}
 
+	/**
+	 * Automatically assign settings to generated fields.
+	 *
+	 * @param string $type type of field being generated.
+	 * @param object $field field entity.
+	 * @return void
+	 */
 	private function generate_field_settings( $type, $field ) {
 
 		// Assign a description.
 		$desc = \Faker\Provider\Lorem::sentence( 6, true );
 
 		carbon_set_post_meta( $field->getPostID(), 'profile_field_description', $desc );
+
+		// Assign a placeholder.
+		$placeholder = \Faker\Provider\Lorem::sentence( 6, true );
+
+		carbon_set_post_meta( $field->getPostID(), 'profile_field_placeholder', $placeholder );
+
+		// Assign options to dropdowns and radios.
+		if ( in_array( $field->getType(), pno_get_multi_options_field_types() ) ) {
+
+			// Assign a placeholder.
+			$options = \Faker\Provider\Lorem::words( 3, false );
+
+			$formatted = [];
+
+			foreach ( $options as $option ) {
+				$formatted[] = [ 'option_title' => $option ];
+			}
+
+			carbon_set_post_meta( $field->getPostID(), 'profile_field_selectable_options', $formatted );
+
+		}
 
 	}
 
