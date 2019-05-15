@@ -21,13 +21,27 @@ if ( ! defined( '\WP_CLI' ) ) {
 WP_CLI::add_hook(
 	'before_wp_load',
 	function() {
+		require __DIR__ . '/vendor/autoload.php';
 		require_once __DIR__ . '/component.php';
 		require_once __DIR__ . '/commands/posterno.php';
+		require_once __DIR__ . '/commands/generate.php';
 		require_once __DIR__ . '/commands/tool.php';
 
 		WP_CLI::add_command(
 			'pno',
 			__NAMESPACE__ . '\\Command\\Posterno',
+			array(
+				'before_invoke' => function() {
+					if ( ! class_exists( 'Posterno' ) ) {
+						WP_CLI::error( 'The Posterno plugin is not active.' );
+					}
+				},
+			)
+		);
+
+		WP_CLI::add_command(
+			'pno generate',
+			__NAMESPACE__ . '\\Command\\Generate',
 			array(
 				'before_invoke' => function() {
 					if ( ! class_exists( 'Posterno' ) ) {
