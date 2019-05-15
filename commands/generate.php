@@ -50,6 +50,8 @@ class Generate extends PNOCommand {
 				]
 			);
 
+			$this->generate_field_settings( 'profile', $new_field );
+
 			$notify->tick();
 
 		}
@@ -59,4 +61,14 @@ class Generate extends PNOCommand {
 		$notify->finish();
 
 	}
+
+	private function generate_field_settings( $type, $field ) {
+
+		// Assign a description.
+		$desc = \Faker\Provider\Lorem::sentence( 6, true );
+
+		carbon_set_post_meta( $field->getPostID(), 'profile_field_description', $desc );
+
+	}
+
 }
