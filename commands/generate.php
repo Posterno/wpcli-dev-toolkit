@@ -32,6 +32,8 @@ class Generate extends PNOCommand {
 			]
 		);
 
+		parent::delete_profile_fields();
+
 		$field_priority = 100;
 
 		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random profile fields', count( $available_profile_fields ) );

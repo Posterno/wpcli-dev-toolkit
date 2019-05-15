@@ -53,4 +53,49 @@ abstract class PNOCommand extends CommandWithDBObject {
 		return strtolower( str_replace( '-', '_', $type ) );
 	}
 
+	/**
+	 * Helper function delete generated profile fields.
+	 *
+	 * @return void
+	 */
+	protected function delete_profile_fields() {
+
+		$available_profile_fields = pno_get_registered_field_types(
+			[
+				'social-profiles',
+				'listing-category',
+				'listing-tags',
+				'term-select',
+				'term-multiselect',
+				'term-checklist',
+				'term-chain-dropdown',
+				'listing-opening-hours',
+				'listing-location',
+			]
+		);
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Deleting previously generated profile fields.', count( $available_profile_fields ) );
+
+		$field = new \PNO\Database\Queries\Profile_Fields();
+
+		foreach ( $available_profile_fields as $type => $name ) {
+
+			$name = strtolower( str_replace( '-', '_', $name ) );
+
+			$found_field = $field->get_item_by( 'user_meta_key', $name );
+
+			if ( $found_field instanceof \PNO\Entities\Field\Profile && $found_field->getPostID() > 0 && $found_field->canDelete() ) {
+				$found_field::delete( $found_field->getPostID() );
+			}
+
+			$notify->tick();
+
+		}
+
+		\PNO\Cache\Helper::flush_all_fields_cache();
+
+		$notify->finish();
+
+	}
+
 }
