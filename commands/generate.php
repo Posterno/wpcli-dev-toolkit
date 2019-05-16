@@ -14,7 +14,6 @@ class Generate extends PNOCommand {
 	 * ## EXAMPLE
 	 *
 	 *     $ wp pno generate profile_fields
-	 *     Posterno: 3.0.0
 	 */
 	public function profile_fields() {
 
@@ -233,6 +232,19 @@ class Generate extends PNOCommand {
 			$notify->finish();
 
 		}
+
+	}
+
+	/**
+	 * Generate taxonomy terms.
+	 *
+	 * ## EXAMPLE
+	 *
+	 *     $ wp pno generate taxonomies
+	 */
+	public function taxonomies() {
+
+		parent::delete_taxonomies();
 
 	}
 

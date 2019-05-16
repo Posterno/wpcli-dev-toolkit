@@ -112,4 +112,41 @@ abstract class PNOCommand extends CommandWithDBObject {
 
 	}
 
+	/**
+	 * Delete all Posterno's taxonomies.
+	 *
+	 * @return void
+	 */
+	protected function delete_taxonomies() {
+
+		global $wpdb;
+
+		$taxonomies = get_object_taxonomies( 'listings' );
+
+		if ( ! empty( $taxonomies ) && is_array( $taxonomies ) ) {
+
+			foreach ( array_unique( array_filter( $taxonomies ) ) as $taxonomy ) {
+				$terms = $wpdb->get_results( $wpdb->prepare( "SELECT t.*, tt.* FROM $wpdb->terms AS t INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id WHERE tt.taxonomy IN ('%s') ORDER BY t.name ASC", $taxonomy ) );
+
+				$notify = \WP_CLI\Utils\make_progress_bar( 'Deleting all terms for ' . $taxonomy, count( $terms ) );
+
+				// Delete Terms.
+				if ( $terms ) {
+					foreach ( $terms as $term ) {
+						$wpdb->delete( $wpdb->term_relationships, array( 'term_taxonomy_id' => $term->term_taxonomy_id ) );
+						$wpdb->delete( $wpdb->term_taxonomy, array( 'term_taxonomy_id' => $term->term_taxonomy_id ) );
+						$wpdb->delete( $wpdb->terms, array( 'term_id' => $term->term_id ) );
+						$notify->tick();
+					}
+				}
+				// Delete Taxonomies.
+				$wpdb->delete( $wpdb->term_taxonomy, array( 'taxonomy' => $taxonomy ), array( '%s' ) );
+
+				$notify->finish();
+
+			}
+		}
+
+	}
+
 }
