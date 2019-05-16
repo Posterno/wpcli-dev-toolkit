@@ -77,12 +77,12 @@ class Generate extends PNOCommand {
 		// Assign a description.
 		$desc = \Faker\Provider\Lorem::sentence( 6, true );
 
-		carbon_set_post_meta( $field->getPostID(), 'profile_field_description', $desc );
+		carbon_set_post_meta( $field->getPostID(), "{$type}_field_description", $desc );
 
 		// Assign a placeholder.
 		$placeholder = \Faker\Provider\Lorem::sentence( 6, true );
 
-		carbon_set_post_meta( $field->getPostID(), 'profile_field_placeholder', $placeholder );
+		carbon_set_post_meta( $field->getPostID(), "{$type}_field_placeholder", $placeholder );
 
 		// Assign options to dropdowns and radios.
 		if ( in_array( $field->getType(), pno_get_multi_options_field_types() ) ) {
@@ -96,7 +96,7 @@ class Generate extends PNOCommand {
 				$formatted[] = [ 'option_title' => $option ];
 			}
 
-			carbon_set_post_meta( $field->getPostID(), 'profile_field_selectable_options', $formatted );
+			carbon_set_post_meta( $field->getPostID(), "{$type}_field_selectable_options", $formatted );
 
 		}
 
@@ -343,6 +343,55 @@ class Generate extends PNOCommand {
 					break;
 			}
 		}
+
+	}
+
+	/**
+	 * Generate listings fields.
+	 *
+	 * ## EXAMPLE
+	 *
+	 *     $ wp pno generate listings_fields
+	 */
+	public function listings_fields() {
+
+		$available_fields = pno_get_registered_field_types(
+			[
+				'social-profiles',
+				'listing-category',
+				'listing-tags',
+				'listing-opening-hours',
+				'listing-location',
+			]
+		);
+
+		parent::delete_listings_fields();
+
+		$field_priority = 100;
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random listings fields', count( $available_fields ) );
+
+		foreach ( $available_fields as $type => $name ) {
+
+			$field_priority++;
+
+			$new_field = \PNO\Entities\Field\Listing::create(
+				[
+					'name'     => 'Test ' . $name . ' field',
+					'priority' => $field_priority,
+					'type'     => $type,
+				]
+			);
+
+			$this->generate_field_settings( 'listing', $new_field );
+
+			$notify->tick();
+
+		}
+
+		\PNO\Cache\Helper::flush_all_fields_cache();
+
+		$notify->finish();
 
 	}
 

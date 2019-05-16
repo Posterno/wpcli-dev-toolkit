@@ -149,4 +149,35 @@ abstract class PNOCommand extends CommandWithDBObject {
 
 	}
 
+	/**
+	 * Helper function delete generated profile fields.
+	 *
+	 * @return void
+	 */
+	protected function delete_listings_fields() {
+
+		$field = new \PNO\Database\Queries\Listing_Fields(
+			[
+				'listing_meta_key__not_in' => pno_get_registered_default_meta_keys(),
+				'number'                   => 999,
+			]
+		);
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Deleting all non default listings fields.', count( $field->items ) );
+
+		foreach ( $field->items as $found_field ) {
+			if ( $found_field instanceof \PNO\Entities\Field\Listing && $found_field->getPostID() > 0 && $found_field->canDelete() ) {
+				$found_field::delete( $found_field->getPostID() );
+			}
+
+			$notify->tick();
+
+		}
+
+		\PNO\Cache\Helper::flush_all_fields_cache();
+
+		$notify->finish();
+
+	}
+
 }
