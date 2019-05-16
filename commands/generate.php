@@ -244,7 +244,105 @@ class Generate extends PNOCommand {
 	 */
 	public function taxonomies() {
 
+		global $wpdb;
+
 		parent::delete_taxonomies();
+
+		$taxonomies = get_object_taxonomies( 'listings' );
+
+		$amount = 12;
+
+		foreach ( $taxonomies as $tax ) {
+
+			switch ( $tax ) {
+				case 'taxonomy1':
+				case 'taxonomy2':
+					$notify = \WP_CLI\Utils\make_progress_bar( 'Generating terms for ' . $tax, count( $amount ) );
+					foreach ( range( 1, $amount ) as $index ) {
+						wp_insert_term( \Faker\Provider\Base::lexify( 'Term ?????' ), $tax );
+						$notify->tick();
+					}
+					$notify->finish();
+					break;
+				case 'listings-types':
+					$types_amount = 3;
+					$notify       = \WP_CLI\Utils\make_progress_bar( 'Generating terms for ' . $tax, count( $types_amount ) );
+					foreach ( range( 1, $types_amount ) as $index ) {
+						wp_insert_term( \Faker\Provider\Base::numerify( 'Type ###' ), $tax );
+						$notify->tick();
+					}
+					$notify->finish();
+					break;
+				case 'listings-locations':
+					$cats_amount = 30;
+					$notify      = \WP_CLI\Utils\make_progress_bar( 'Generating terms for ' . $tax, count( $cats_amount ) );
+					foreach ( range( 1, $cats_amount ) as $index ) {
+						wp_insert_term( \Faker\Provider\en_US\Address::country(), $tax );
+						$notify->tick();
+					}
+					$notify->finish();
+
+					// Randomize hierarchy.
+					$terms = get_terms(
+						[
+							'taxonomy'   => $tax,
+							'hide_empty' => false,
+							'number'     => 9999,
+						]
+					);
+
+					$random_terms = \Faker\Provider\Base::randomElements( $terms, 3 );
+
+					foreach ( $random_terms as $term ) {
+
+						$cats_amount = 5;
+						$notify      = \WP_CLI\Utils\make_progress_bar( 'Generating random child terms for ' . $term->name, count( $cats_amount ) );
+
+						foreach ( range( 1, $cats_amount ) as $index ) {
+							wp_insert_term( \Faker\Provider\Base::numerify( 'Child Type ###' ), $tax, [ 'parent' => $term->term_id ] );
+							$notify->tick();
+						}
+						$notify->finish();
+
+					}
+					break;
+				default:
+					$cats_amount = 20;
+					$notify      = \WP_CLI\Utils\make_progress_bar( 'Generating terms for ' . $tax, count( $cats_amount ) );
+					foreach ( range( 1, $cats_amount ) as $index ) {
+						wp_insert_term( \Faker\Provider\Base::numerify( 'Type ###' ), $tax );
+						$notify->tick();
+					}
+					$notify->finish();
+
+					if ( is_taxonomy_hierarchical( $tax ) ) {
+						// Randomize hierarchy.
+						$terms = get_terms(
+							[
+								'taxonomy'   => $tax,
+								'hide_empty' => false,
+								'number'     => 9999,
+							]
+						);
+
+						$random_terms = \Faker\Provider\Base::randomElements( $terms, 3 );
+
+						foreach ( $random_terms as $term ) {
+
+							$cats_amount = 5;
+							$notify      = \WP_CLI\Utils\make_progress_bar( 'Generating random child terms for ' . $term->name, count( $cats_amount ) );
+
+							foreach ( range( 1, $cats_amount ) as $index ) {
+								wp_insert_term( \Faker\Provider\Base::numerify( 'Child Type ###' ), $tax, [ 'parent' => $term->term_id ] );
+								$notify->tick();
+							}
+							$notify->finish();
+
+						}
+					}
+					break;
+			}
+		}
 
 	}
 
