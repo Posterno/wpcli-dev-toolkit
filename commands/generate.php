@@ -62,6 +62,8 @@ class Generate extends PNOCommand {
 
 		$this->generate_registration_fields();
 
+		$this->generate_users_data();
+
 	}
 
 	/**
@@ -135,6 +137,94 @@ class Generate extends PNOCommand {
 						'priority'         => $profile_field->getPriority(),
 					]
 				);
+
+				$notify->tick();
+
+			}
+
+			$notify->finish();
+
+		}
+
+	}
+
+	/**
+	 * Generate random user's data for all fields generated.
+	 *
+	 * @return void
+	 */
+	private function generate_users_data() {
+
+		$fields = new \PNO\Database\Queries\Profile_Fields(
+			[
+				'user_meta_key__not_in' => pno_get_registered_default_meta_keys(),
+				'number'                => 999,
+			]
+		);
+
+		$users = new \WP_User_Query(
+			[
+				'number' => -1,
+				'fields' => 'ID',
+			]
+		);
+
+		if ( ! empty( $fields->items ) && is_array( $fields->items ) ) {
+
+			$notify = \WP_CLI\Utils\make_progress_bar( 'Generating user data for the profile fields.', count( $fields->items ) );
+
+			foreach ( $fields->items as $profile_field ) {
+
+				if ( $profile_field->getType() === 'file' ) {
+					continue;
+				}
+
+				$type     = $profile_field->getType();
+				$meta_key = $profile_field->getObjectMetaKey();
+
+				switch ( $type ) {
+					case 'url':
+					case 'email':
+					case 'password':
+					case 'text':
+						$text = \Faker\Provider\Lorem::sentence( 10, true );
+						foreach ( $users->get_results() as $user_id ) {
+							carbon_set_user_meta( $user_id, $meta_key, $text );
+						}
+						break;
+					case 'editor':
+					case 'textarea':
+						$text = \Faker\Provider\Lorem::paragraphs( 2, true );
+						foreach ( $users->get_results() as $user_id ) {
+							carbon_set_user_meta( $user_id, $meta_key, $text );
+						}
+						break;
+					case 'select':
+					case 'multiselect':
+					case 'multicheckbox':
+						$options = $profile_field->getOptions();
+						$options = array_rand( $options, 2 );
+						foreach ( $users->get_results() as $user_id ) {
+							carbon_set_user_meta( $user_id, $meta_key, $options );
+						}
+						break;
+					case 'radio':
+						$options = $profile_field->getOptions();
+						foreach ( $users->get_results() as $user_id ) {
+							carbon_set_user_meta( $user_id, $meta_key, key( array_slice( $options, 1, 1, true ) ) );
+						}
+						break;
+					case 'checkbox':
+						foreach ( $users->get_results() as $user_id ) {
+							carbon_set_user_meta( $user_id, $meta_key, true );
+						}
+						break;
+					case 'number':
+						foreach ( $users->get_results() as $user_id ) {
+							carbon_set_user_meta( $user_id, $meta_key, \Faker\Provider\Base::randomNumber() );
+						}
+						break;
+				}
 
 				$notify->tick();
 
