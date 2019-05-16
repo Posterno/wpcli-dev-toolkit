@@ -98,6 +98,17 @@ class Generate extends PNOCommand {
 
 			carbon_set_post_meta( $field->getPostID(), "{$type}_field_selectable_options", $formatted );
 
+		} elseif ( in_array( $field->getType(), [ 'term-select', 'term-multiselect', 'term-checklist', 'term-chain-dropdown' ] ) ) {
+
+			if ( $field->getType() === 'term-chain-dropdown' ) {
+				carbon_set_post_meta( $field->getPostID(), 'listing_field_taxonomy', 'taxonomy4' );
+			} elseif ( $field->getType() === 'term-select' ) {
+				carbon_set_post_meta( $field->getPostID(), 'listing_field_taxonomy', 'taxonomy1' );
+			} elseif ( $field->getType() === 'term-multiselect' ) {
+				carbon_set_post_meta( $field->getPostID(), 'listing_field_taxonomy', 'taxonomy2' );
+			} elseif ( $field->getType() === 'term-checklist' ) {
+				carbon_set_post_meta( $field->getPostID(), 'listing_field_taxonomy', 'taxonomy3' );
+			}
 		}
 
 	}
