@@ -60,6 +60,8 @@ class Generate extends PNOCommand {
 
 		$notify->finish();
 
+		$this->generate_registration_fields();
+
 	}
 
 	/**
@@ -94,6 +96,51 @@ class Generate extends PNOCommand {
 			}
 
 			carbon_set_post_meta( $field->getPostID(), 'profile_field_selectable_options', $formatted );
+
+		}
+
+	}
+
+	/**
+	 * Generate registration fields for all the newly generated profile fields.
+	 *
+	 * @return void
+	 */
+	private function generate_registration_fields() {
+
+		// Delete any previously created registration field.
+		parent::delete_registration_fields();
+
+		$fields = new \PNO\Database\Queries\Profile_Fields(
+			[
+				'user_meta_key__not_in' => pno_get_registered_default_meta_keys(),
+				'number'                => 999,
+			]
+		);
+
+		if ( ! empty( $fields->items ) && is_array( $fields->items ) ) {
+
+			$notify = \WP_CLI\Utils\make_progress_bar( 'Generating associated registration fields', count( $fields->items ) );
+
+			foreach ( $fields->items as $profile_field ) {
+
+				if ( $profile_field->getType() === 'file' ) {
+					continue;
+				}
+
+				$new_registration_field = \PNO\Entities\Field\Registration::create(
+					[
+						'name'             => $profile_field->getTitle(),
+						'profile_field_id' => $profile_field->getPostID(),
+						'priority'         => $profile_field->getPriority(),
+					]
+				);
+
+				$notify->tick();
+
+			}
+
+			$notify->finish();
 
 		}
 

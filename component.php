@@ -84,4 +84,32 @@ abstract class PNOCommand extends CommandWithDBObject {
 
 	}
 
+	/**
+	 * Delete non default registration fields.
+	 *
+	 * @return void
+	 */
+	protected function delete_registration_fields() {
+
+		$fields = new \PNO\Database\Queries\Registration_Fields(
+			[
+				'number' => 999,
+			]
+		);
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Deleting all non default registration fields.', count( $fields->items ) );
+
+		foreach ( $fields->items as $found_field ) {
+			if ( $found_field instanceof \PNO\Entities\Field\Profile && $found_field->getProfileFieldID() > 0 && $found_field->getPostID() > 0 && $found_field->canDelete() ) {
+				$found_field::delete( $found_field->getPostID() );
+			}
+			$notify->tick();
+		}
+
+		\PNO\Cache\Helper::flush_all_fields_cache();
+
+		$notify->finish();
+
+	}
+
 }
