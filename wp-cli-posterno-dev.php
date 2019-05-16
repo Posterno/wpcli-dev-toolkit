@@ -13,6 +13,8 @@ namespace PNODEV\CLI;
 
 use WP_CLI;
 
+require_once __DIR__ . '/taxonomies.php';
+
 // Bail if WP-CLI is not present.
 if ( ! defined( '\WP_CLI' ) ) {
 	return;
