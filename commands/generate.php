@@ -437,15 +437,15 @@ class Generate extends PNOCommand {
 
 		$listings = new \WP_Query(
 			[
-				'post_type' => 'listings',
-				'number'    => -1,
-				'fields'    => 'ids',
+				'post_type'      => 'listings',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
 			]
 		);
 
 		if ( ! empty( $fields->items ) && is_array( $fields->items ) ) {
 
-			$notify = \WP_CLI\Utils\make_progress_bar( 'Generating user data for the listing fields.', count( $fields->items ) );
+			$notify = \WP_CLI\Utils\make_progress_bar( 'Generating data for the listing fields.', count( $fields->items ) );
 
 			foreach ( $fields->items as $listing_field ) {
 
@@ -534,4 +534,49 @@ class Generate extends PNOCommand {
 		}
 
 	}
+
+	/**
+	 * Generate listings.
+	 *
+	 * ## EXAMPLE
+	 *
+	 *     $ wp pno generate listings 20
+	 */
+	public function listings( $args, $assoc_args ) {
+
+		parent::delete_listings();
+
+		$amount = isset( $args[0] ) ? absint( $args[0] ) : 100;
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random listings.', $amount );
+
+		foreach ( range( 1, $amount ) as $index ) {
+
+			$listing_data = [
+				'post_title'   => \Faker\Provider\Base::numerify( 'Listing ###' ),
+				'post_content' => \Faker\Provider\Lorem::paragraphs( 2, true ),
+				'post_status'  => 'publish',
+				'post_author'  => 1,
+				'post_type'    => 'listings',
+			];
+
+			$new_listing_id = wp_insert_post( $listing_data );
+
+			$faker = \Faker\Factory::create();
+
+			$lat = \Faker\Provider\en_US\Address::latitude( -90, 90 );
+			$lng = \Faker\Provider\en_US\Address::longitude( -180, 180 );
+			$add = $faker->streetAddress;
+
+			pno_update_listing_address( $lat, $lng, $add, $new_listing_id );
+
+			$notify->tick();
+		}
+
+		$notify->finish();
+
+		$this->listings_fields();
+
+	}
+
 }

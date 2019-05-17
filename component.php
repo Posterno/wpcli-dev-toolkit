@@ -180,4 +180,37 @@ abstract class PNOCommand extends CommandWithDBObject {
 
 	}
 
+	/**
+	 * Delete listings.
+	 *
+	 * @return void
+	 */
+	protected function delete_listings() {
+
+		$post_types = array( 'listings' );
+
+		foreach ( $post_types as $post_type ) {
+			$items = get_posts(
+				array(
+					'post_type'   => $post_type,
+					'post_status' => 'any',
+					'numberposts' => -1,
+					'fields'      => 'ids',
+				)
+			);
+			if ( $items ) {
+
+				$notify = \WP_CLI\Utils\make_progress_bar( 'Deleting all listings.', count( $items ) );
+
+				foreach ( $items as $item ) {
+					wp_delete_post( $item, true );
+					$notify->tick();
+				}
+
+				$notify->finish();
+			}
+		}
+
+	}
+
 }
