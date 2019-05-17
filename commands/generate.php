@@ -570,6 +570,29 @@ class Generate extends PNOCommand {
 
 			pno_update_listing_address( $lat, $lng, $add, $new_listing_id );
 
+			$taxonomies = array( 'listings-categories', 'listings-locations', 'listings-tags' );
+
+			foreach ( $taxonomies as $tax ) {
+
+				// Randomize hierarchy.
+				$terms = get_terms(
+					[
+						'taxonomy'   => $tax,
+						'hide_empty' => false,
+						'number'     => 9999,
+					]
+				);
+
+				$random_terms = \Faker\Provider\Base::randomElements( $terms, 3 );
+
+				$termslist = [];
+				foreach ( $random_terms as $term ) {
+					$termslist[] = $term->term_id;
+				}
+				wp_set_post_terms( $new_listing_id, $termslist, $tax );
+
+			}
+
 			$notify->tick();
 		}
 
