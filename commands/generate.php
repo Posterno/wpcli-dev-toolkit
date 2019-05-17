@@ -404,6 +404,134 @@ class Generate extends PNOCommand {
 
 		$notify->finish();
 
+		$this->generate_listings_data();
+
 	}
 
+	/**
+	 * Generate data for all custom listings fields.
+	 *
+	 * @return void
+	 */
+	private function generate_listings_data() {
+
+		$not_needed = [
+			'listing_title',
+			'listing_description',
+			'listing_opening_hours',
+			'listing_featured_image',
+			'listing_gallery',
+			'listing_location',
+			'listing_categories',
+			'listing_tags',
+			'listing_regions',
+			'listing_video',
+		];
+
+		$fields = new \PNO\Database\Queries\Listing_Fields(
+			[
+				'listing_meta_key__not_in' => $not_needed,
+				'number'                   => 999,
+			]
+		);
+
+		$listings = new \WP_Query(
+			[
+				'post_type' => 'listings',
+				'number'    => -1,
+				'fields'    => 'ids',
+			]
+		);
+
+		if ( ! empty( $fields->items ) && is_array( $fields->items ) ) {
+
+			$notify = \WP_CLI\Utils\make_progress_bar( 'Generating user data for the listing fields.', count( $fields->items ) );
+
+			foreach ( $fields->items as $listing_field ) {
+
+				if ( $listing_field->getType() === 'file' ) {
+					continue;
+				}
+
+				$type     = $listing_field->getType();
+				$meta_key = $listing_field->getObjectMetaKey();
+
+				switch ( $type ) {
+					case 'url':
+					case 'email':
+					case 'password':
+					case 'text':
+						$text = \Faker\Provider\Lorem::sentence( 10, true );
+						foreach ( $listings->get_posts() as $post_id ) {
+							carbon_set_post_meta( $post_id, $meta_key, $text );
+						}
+						break;
+					case 'editor':
+					case 'textarea':
+						$text = \Faker\Provider\Lorem::paragraphs( 2, true );
+						foreach ( $listings->get_posts() as $post_id ) {
+							carbon_set_post_meta( $post_id, $meta_key, $text );
+						}
+						break;
+					case 'select':
+					case 'multiselect':
+					case 'multicheckbox':
+						$options = $listing_field->getOptions();
+						$options = array_rand( $options, 2 );
+						foreach ( $listings->get_posts() as $post_id ) {
+							carbon_set_post_meta( $post_id, $meta_key, $options );
+						}
+						break;
+					case 'radio':
+						$options = $listing_field->getOptions();
+						foreach ( $listings->get_posts() as $post_id ) {
+							carbon_set_post_meta( $post_id, $meta_key, key( array_slice( $options, 1, 1, true ) ) );
+						}
+						break;
+					case 'checkbox':
+						foreach ( $listings->get_posts() as $post_id ) {
+							carbon_set_post_meta( $post_id, $meta_key, true );
+						}
+						break;
+					case 'number':
+						foreach ( $listings->get_posts() as $post_id ) {
+							carbon_set_post_meta( $post_id, $meta_key, \Faker\Provider\Base::randomNumber() );
+						}
+						break;
+					case 'term-select':
+					case 'term-multiselect':
+					case 'term-checklist':
+					case 'term-chain-dropdown':
+						$tax = $listing_field->getTaxonomy();
+
+						// Randomize hierarchy.
+						$terms = get_terms(
+							[
+								'taxonomy'   => $tax,
+								'hide_empty' => false,
+								'number'     => 9999,
+							]
+						);
+
+						$random_terms = \Faker\Provider\Base::randomElements( $terms, 3 );
+
+						foreach ( $listings->get_posts() as $post_id ) {
+							$termslist = [];
+							foreach ( $random_terms as $term ) {
+								$termslist[] = $term->term_id;
+							}
+							wp_set_post_terms( $post_id, $termslist, $tax );
+						}
+						break;
+				}
+
+				$notify->tick();
+
+			}
+
+			$notify->finish();
+
+		}
+
+	}
 }
