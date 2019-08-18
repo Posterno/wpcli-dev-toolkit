@@ -443,6 +443,8 @@ class Generate extends PNOCommand {
 			]
 		);
 
+		$faker = \Faker\Factory::create();
+
 		if ( ! empty( $fields->items ) && is_array( $fields->items ) ) {
 
 			$notify = \WP_CLI\Utils\make_progress_bar( 'Generating data for the listing fields.', count( $fields->items ) );
@@ -458,11 +460,21 @@ class Generate extends PNOCommand {
 
 				switch ( $type ) {
 					case 'url':
+						foreach ( $listings->get_posts() as $post_id ) {
+							$text = $faker->url;
+							carbon_set_post_meta( $post_id, $meta_key, $text );
+						}
+						break;
 					case 'email':
+						foreach ( $listings->get_posts() as $post_id ) {
+							$text = $faker->safeEmail;
+							carbon_set_post_meta( $post_id, $meta_key, $text );
+						}
+						break;
 					case 'password':
 					case 'text':
-						$text = \Faker\Provider\Lorem::sentence( 10, true );
 						foreach ( $listings->get_posts() as $post_id ) {
+							$text = \Faker\Provider\Lorem::sentence( 10, true );
 							carbon_set_post_meta( $post_id, $meta_key, $text );
 						}
 						break;
