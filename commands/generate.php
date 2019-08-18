@@ -550,10 +550,12 @@ class Generate extends PNOCommand {
 
 		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random listings.', $amount );
 
+		$faker = \Faker\Factory::create();
+
 		foreach ( range( 1, $amount ) as $index ) {
 
 			$listing_data = [
-				'post_title'   => \Faker\Provider\Base::numerify( 'Listing ###' ),
+				'post_title'   => $faker->company,
 				'post_content' => \Faker\Provider\Lorem::paragraphs( 2, true ),
 				'post_status'  => 'publish',
 				'post_author'  => 1,
@@ -561,8 +563,6 @@ class Generate extends PNOCommand {
 			];
 
 			$new_listing_id = wp_insert_post( $listing_data );
-
-			$faker = \Faker\Factory::create();
 
 			$lat = \Faker\Provider\en_US\Address::latitude( -90, 90 );
 			$lng = \Faker\Provider\en_US\Address::longitude( -180, 180 );
