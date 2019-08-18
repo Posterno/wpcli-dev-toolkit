@@ -537,6 +537,27 @@ class Generate extends PNOCommand {
 						break;
 				}
 
+				switch ( $meta_key ) {
+					case 'listing_email_address':
+						foreach ( $listings->get_posts() as $post_id ) {
+							$text = $faker->safeEmail;
+							carbon_set_post_meta( $post_id, 'listing_email', $text );
+						}
+						break;
+					case 'listing_phone_number':
+						foreach ( $listings->get_posts() as $post_id ) {
+							$text = $faker->e164PhoneNumber;
+							carbon_set_post_meta( $post_id, $meta_key, $text );
+						}
+						break;
+					case 'listing_zipcode':
+						foreach ( $listings->get_posts() as $post_id ) {
+							$text = $faker->postcode;
+							carbon_set_post_meta( $post_id, $meta_key, $text );
+						}
+						break;
+				}
+
 				$notify->tick();
 
 			}
