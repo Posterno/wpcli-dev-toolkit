@@ -610,9 +610,15 @@ class Generate extends PNOCommand {
 
 		$use_db_data = isset( $assoc_args['db'] ) && $assoc_args['db'] === 'yes' ? true : false;
 
+		$images = isset( $assoc_args['images'] ) ? true : false;
+
+		$pexels_api_key = isset( $assoc_args['pexels'] ) && ! empty( $assoc_args['pexels'] ) ? $assoc_args['pexels'] : false;
+
 		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random listings.', $amount );
 
 		$faker = \Faker\Factory::create();
+
+		$pexels = new \Glooby\Pexels\Client( $pexels_api_key );
 
 		foreach ( range( 1, $amount ) as $index ) {
 
@@ -653,6 +659,22 @@ class Generate extends PNOCommand {
 				}
 				wp_set_post_terms( $new_listing_id, $termslist, $tax );
 
+			}
+
+			// Generate featured image if enabled.
+			if ( $images === true && $pexels_api_key ) {
+
+				$photos = json_decode( $pexels->search( 'london', 1, 1 )->getBody() )->photos;
+				$image  = isset( $photos[0]->src->large ) ? $photos[0]->src->large : false;
+
+				if ( $image ) {
+					$upload = pno_rest_upload_image_from_url( $image );
+					$id     = pno_rest_set_uploaded_image_as_attachment( $upload, $new_listing_id );
+
+					if ( $id ) {
+						set_post_thumbnail( $new_listing_id, $id );
+					}
+				}
 			}
 
 			$notify->tick();
