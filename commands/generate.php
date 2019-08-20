@@ -772,7 +772,7 @@ class Generate extends PNOCommand {
 
 		unset( $statuses['publish'] );
 
-		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random statuses for listings.', 10 );
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random statuses for listings.', $amount );
 
 		foreach ( $random_ids as $id ) {
 
@@ -784,6 +784,41 @@ class Generate extends PNOCommand {
 			);
 
 			wp_update_post( $args );
+
+			$notify->tick();
+
+		}
+
+		$notify->finish();
+
+	}
+
+	/**
+	 * Mark random listings as featured.
+	 *
+	 * ## EXAMPLE
+	 *
+	 *     $ wp pno generate featurify 10
+	 */
+	public function featurify() {
+
+		$amount = isset( $args[0] ) ? absint( $args[0] ) : 10;
+
+		$listings = new \WP_Query(
+			[
+				'post_type'      => 'listings',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			]
+		);
+
+		$random_ids = \Faker\Provider\Base::randomElements( $listings->get_posts(), $amount );
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Setting random listings as featured.', $amount );
+
+		foreach ( $random_ids as $id ) {
+
+			pno_set_listing_as_featured( $id );
 
 			$notify->tick();
 
