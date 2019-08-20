@@ -567,6 +567,13 @@ class Generate extends PNOCommand {
 					update_post_meta( $post_id, '_listing_opening_hours', maybe_unserialize( $opening_hours ) );
 				}
 
+				// Setup social media.
+				$social = 'a:3:{i:0;a:3:{s:5:"value";s:1:"_";s:9:"social_id";a:1:{i:0;a:1:{s:5:"value";s:8:"facebook";}}s:10:"social_url";a:1:{i:0;a:1:{s:5:"value";s:34:"https://www.facebook.com/posterno/";}}}i:1;a:3:{s:5:"value";s:1:"_";s:9:"social_id";a:1:{i:0;a:1:{s:5:"value";s:7:"twitter";}}s:10:"social_url";a:1:{i:0;a:1:{s:5:"value";s:30:"https://twitter.com/posternowp";}}}i:2;a:3:{s:5:"value";s:1:"_";s:9:"social_id";a:1:{i:0;a:1:{s:5:"value";s:6:"github";}}s:10:"social_url";a:1:{i:0;a:1:{s:5:"value";s:27:"https://github.com/Posterno";}}}}';
+
+				foreach ( $listings->get_posts() as $post_id ) {
+					update_post_meta( $post_id, '_listing_social_profiles', maybe_unserialize( $social ) );
+				}
+
 				// Setup listing types.
 				foreach ( $listings->get_posts() as $post_id ) {
 					$terms = get_terms(
