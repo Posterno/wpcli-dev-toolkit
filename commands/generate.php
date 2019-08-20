@@ -743,4 +743,50 @@ class Generate extends PNOCommand {
 		}
 	}
 
+	/**
+	 * Generate random statuses for listings.
+	 *
+	 * ## EXAMPLE
+	 *
+	 *     $ wp pno generate status 10
+	 */
+	public function status( $args, $assoc_args ) {
+
+		$amount = isset( $args[0] ) ? absint( $args[0] ) : 10;
+
+		$listings = new \WP_Query(
+			[
+				'post_type'      => 'listings',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			]
+		);
+
+		$random_ids = \Faker\Provider\Base::randomElements( $listings->get_posts(), $amount );
+
+		$statuses = array_keys( pno_get_listing_post_statuses() );
+
+		unset( $statuses['publish'] );
+
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random statuses for listings.', 10 );
+
+		foreach ( $random_ids as $id ) {
+
+			$random_status = \Faker\Provider\Base::randomElements( $statuses, 1 );
+
+			$args = array(
+				'ID'          => $id,
+				'post_status' => $random_status[0],
+			);
+
+			wp_update_post( $args );
+
+			$notify->tick();
+
+		}
+
+		$notify->finish();
+
+	}
+
 }
