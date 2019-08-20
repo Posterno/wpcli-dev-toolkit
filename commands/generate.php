@@ -574,12 +574,15 @@ class Generate extends PNOCommand {
 	 * ## EXAMPLE
 	 *
 	 *     $ wp pno generate listings 20
+	 *     $ wp pno generate listings 20 --db=yes skips creation of custom fields and assigns currently available taxonomies for listings.
 	 */
 	public function listings( $args, $assoc_args ) {
 
 		parent::delete_listings();
 
 		$amount = isset( $args[0] ) ? absint( $args[0] ) : 100;
+
+		$use_db_data = isset( $assoc_args['db'] ) && $assoc_args['db'] === 'yes' ? true : false;
 
 		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating random listings.', $amount );
 
@@ -631,8 +634,11 @@ class Generate extends PNOCommand {
 
 		$notify->finish();
 
-		$this->listings_fields();
-
+		if ( $use_db_data ) {
+			$this->generate_listings_data();
+		} else {
+			$this->listings_fields();
+		}
 	}
 
 }
