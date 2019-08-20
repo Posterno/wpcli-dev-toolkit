@@ -20,12 +20,15 @@ if ( ! defined( '\WP_CLI' ) ) {
 	return;
 }
 
-define( 'PNO_CLI_URL', plugin_dir_url( __FILE__ ) );
+if ( ! defined( 'PNO_CLI_URL' ) ) {
+	define( 'PNO_CLI_URL', plugin_dir_url( __FILE__ ) );
+}
 
 WP_CLI::add_hook(
 	'before_wp_load',
 	function() {
 		require __DIR__ . '/vendor/autoload.php';
+		require_once __DIR__ . '/PexelsRandom.php';
 		require_once __DIR__ . '/component.php';
 		require_once __DIR__ . '/commands/posterno.php';
 		require_once __DIR__ . '/commands/generate.php';

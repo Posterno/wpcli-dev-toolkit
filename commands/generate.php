@@ -621,7 +621,9 @@ class Generate extends PNOCommand {
 
 		$faker = \Faker\Factory::create();
 
-		$pexels = new \Glooby\Pexels\Client( $pexels_api_key );
+		//$pexels = new \Glooby\Pexels\Client( $pexels_api_key );
+
+		$pexels = new PexelsRandom( $pexels_api_key );
 
 		foreach ( range( 1, $amount ) as $index ) {
 
@@ -667,7 +669,7 @@ class Generate extends PNOCommand {
 			// Generate featured image if enabled.
 			if ( $images === true && $pexels_api_key ) {
 
-				$photos = json_decode( $pexels->search( 'london', 1, 1 )->getBody() )->photos;
+				$photos = json_decode( $pexels->random()->getBody() )->photos;
 				$image  = isset( $photos[0]->src->large ) ? $photos[0]->src->large : false;
 
 				if ( $image ) {
