@@ -565,6 +565,25 @@ class Generate extends PNOCommand {
 					update_post_meta( $post_id, '_listing_opening_hours', maybe_unserialize( $opening_hours ) );
 				}
 
+				// Setup listing types.
+				foreach ( $listings->get_posts() as $post_id ) {
+					$terms = get_terms(
+						[
+							'taxonomy'   => 'listings-types',
+							'hide_empty' => false,
+							'number'     => 9999,
+						]
+					);
+
+					$random_terms = \Faker\Provider\Base::randomElements( $terms, 1 );
+
+					$termslist = [];
+					foreach ( $random_terms as $term ) {
+						$termslist[] = $term->term_id;
+					}
+					wp_set_post_terms( $post_id, $termslist, 'listings-types' );
+				}
+
 				$notify->tick();
 
 			}
