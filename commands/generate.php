@@ -3,6 +3,8 @@ namespace PNODEV\CLI\Command;
 
 use WP_CLI;
 
+use NicoVerbruggen\ImageGenerator\ImageGenerator;
+
 /**
  * Manage data generation commands.
  */
@@ -601,6 +603,7 @@ class Generate extends PNOCommand {
 	 *
 	 *     $ wp pno generate listings 20
 	 *     $ wp pno generate listings 20 --db=yes skips creation of custom fields and assigns currently available taxonomies for listings.
+	 *     $ wp pno generate listings 1 --db=yes --images --pexels=xxx --user=1 generates featured images and gallery images using the pexels api.
 	 */
 	public function listings( $args, $assoc_args ) {
 
@@ -675,6 +678,46 @@ class Generate extends PNOCommand {
 						set_post_thumbnail( $new_listing_id, $id );
 					}
 				}
+			}
+
+			// Generate gallery images when enabled.
+			if ( $images === true && $pexels_api_key ) {
+
+				$generator = new ImageGenerator(
+					[
+						'targetSize' => '1024x1024',
+						'pathToFont' => __DIR__ . '/Roboto-Bold.ttf',
+						'fontSize'   => 20,
+					]
+				);
+
+				$generator->fontSize = 90;
+
+				$generator->makePlaceholderImage(
+					\Faker\Provider\Base::numerify( 'Demo image ##' ),
+					__DIR__ . '/image_example.png'
+				);
+
+				$image = esc_url( PNO_CLI_URL . 'commands/image_example.png' );
+
+				$images_list = [];
+
+				if ( $image ) {
+					$upload = pno_rest_upload_image_from_url( $image );
+					$id     = pno_rest_set_uploaded_image_as_attachment( $upload, $new_listing_id );
+
+					$images_list[] = [
+						'url'  => $upload['url'],
+						'path' => $upload['file'],
+					];
+
+					if ( ! empty( $images_list ) ) {
+						carbon_set_post_meta( $new_listing_id, 'listing_gallery_images', $images_list );
+					}
+				}
+
+				wp_delete_file( __DIR__ . '/image_example.png' );
+
 			}
 
 			$notify->tick();

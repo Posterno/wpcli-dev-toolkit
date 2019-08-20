@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7ab5e6be5dda8595a561fdcbe00a2910",
+    "content-hash": "731b6033fdebdcf2e4cceab73556c7ab",
     "packages": [
         {
             "name": "fzaninotto/faker",
@@ -334,6 +334,43 @@
                 "templating"
             ],
             "time": "2017-07-11T12:54:05+00:00"
+        },
+        {
+            "name": "nicoverbruggen/image-generator",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nicoverbruggen/image-generator.git",
+                "reference": "e231546d69233fe04360867961f9feb02f703a80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nicoverbruggen/image-generator/zipball/e231546d69233fe04360867961f9feb02f703a80",
+                "reference": "e231546d69233fe04360867961f9feb02f703a80",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gd": ">=7.0",
+                "php": ">=7.0"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "NicoVerbruggen\\ImageGenerator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nico Verbruggen",
+                    "email": "nico.verb@gmail.com"
+                }
+            ],
+            "description": "Generate placeholder images with a specific size, color and text (optional).",
+            "time": "2017-12-06T21:00:58+00:00"
         },
         {
             "name": "psr/http-message",

@@ -111,3 +111,5 @@ Temporary Items
 node_modules/
 npm-debug.log
 yarn-error.log
+
+commands/image_example.png

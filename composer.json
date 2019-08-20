@@ -24,6 +24,7 @@
         "php": ">=5.4",
         "wp-cli/wp-cli": ">=0.23.0",
 		"fzaninotto/faker": "^1.8",
-		"glooby/pexels": "^0.1.4"
+		"glooby/pexels": "^0.1.4",
+		"nicoverbruggen/image-generator": "^0.1.0"
     }
 }

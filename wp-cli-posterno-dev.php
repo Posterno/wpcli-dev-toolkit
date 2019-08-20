@@ -20,6 +20,8 @@ if ( ! defined( '\WP_CLI' ) ) {
 	return;
 }
 
+define( 'PNO_CLI_URL', plugin_dir_url( __FILE__ ) );
+
 WP_CLI::add_hook(
 	'before_wp_load',
 	function() {
