@@ -558,6 +558,13 @@ class Generate extends PNOCommand {
 						break;
 				}
 
+				// Setup opening hours.
+				$opening_hours = 'a:7:{s:6:"monday";a:4:{s:7:"opening";s:5:"09:00";s:7:"closing";s:5:"14:00";s:16:"additional_times";a:1:{i:0;a:2:{s:7:"opening";s:5:"16:00";s:7:"closing";s:5:"20:00";}}s:9:"operation";s:5:"hours";}s:7:"tuesday";a:3:{s:9:"operation";s:5:"hours";s:7:"opening";s:5:"08:00";s:7:"closing";s:5:"21:00";}s:9:"wednesday";a:3:{s:9:"operation";s:5:"hours";s:7:"opening";s:5:"08:00";s:7:"closing";s:5:"21:00";}s:8:"thursday";a:3:{s:9:"operation";s:5:"hours";s:7:"opening";s:5:"08:00";s:7:"closing";s:5:"21:00";}s:6:"friday";a:3:{s:9:"operation";s:5:"hours";s:7:"opening";s:5:"08:00";s:7:"closing";s:5:"21:00";}s:8:"saturday";a:1:{s:9:"operation";s:12:"open_all_day";}s:6:"sunday";a:1:{s:9:"operation";s:14:"closed_all_day";}}';
+
+				foreach ( $listings->get_posts() as $post_id ) {
+					update_post_meta( $post_id, '_listing_opening_hours', maybe_unserialize( $opening_hours ) );
+				}
+
 				$notify->tick();
 
 			}
