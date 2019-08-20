@@ -609,16 +609,20 @@ class Generate extends PNOCommand {
 	 * ## EXAMPLE
 	 *
 	 *     $ wp pno generate listings 20
-	 *     $ wp pno generate listings 20 --db=yes skips creation of custom fields and assigns currently available taxonomies for listings.
-	 *     $ wp pno generate listings 1 --db=yes --images --pexels=xxx --user=1 generates featured images and gallery images using the pexels api.
+	 *     $ wp pno generate listings 20 --db skips creation of custom fields and assigns currently available taxonomies for listings.
+	 *     $ wp pno generate listings 1 --db --images --pexels=xxx --user=1 generates featured images and gallery images using the pexels api.
 	 */
 	public function listings( $args, $assoc_args ) {
 
-		parent::delete_listings();
+		$user_id = isset( $assoc_args['author'] ) && ! empty( $assoc_args['author'] ) ? absint( $assoc_args['author'] ) : 1;
+
+		if ( $user_id === 1 ) {
+			parent::delete_listings();
+		}
 
 		$amount = isset( $args[0] ) ? absint( $args[0] ) : 100;
 
-		$use_db_data = isset( $assoc_args['db'] ) && $assoc_args['db'] === 'yes' ? true : false;
+		$use_db_data = isset( $assoc_args['db'] ) ? true : false;
 
 		$images = isset( $assoc_args['images'] ) ? true : false;
 
@@ -636,7 +640,7 @@ class Generate extends PNOCommand {
 				'post_title'   => $faker->company,
 				'post_content' => \Faker\Provider\Lorem::paragraphs( 2, true ),
 				'post_status'  => 'publish',
-				'post_author'  => 1,
+				'post_author'  => $user_id,
 				'post_type'    => 'listings',
 			];
 

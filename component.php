@@ -193,7 +193,7 @@ abstract class PNOCommand extends CommandWithDBObject {
 			$items = get_posts(
 				array(
 					'post_type'   => $post_type,
-					'post_status' => 'any',
+					'post_status' => array_keys( pno_get_listing_post_statuses() ),
 					'numberposts' => -1,
 					'fields'      => 'ids',
 				)
