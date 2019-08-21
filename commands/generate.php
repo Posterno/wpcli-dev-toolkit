@@ -616,7 +616,9 @@ class Generate extends PNOCommand {
 
 		$user_id = isset( $assoc_args['author'] ) && ! empty( $assoc_args['author'] ) ? absint( $assoc_args['author'] ) : 1;
 
-		if ( $user_id === 1 ) {
+		$skip_delete = isset( $assoc_args['nodelete'] ) ? true : false;
+
+		if ( ! $skip_delete ) {
 			parent::delete_listings();
 		}
 
