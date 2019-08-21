@@ -463,7 +463,7 @@ class Generate extends PNOCommand {
 				switch ( $type ) {
 					case 'url':
 						foreach ( $listings->get_posts() as $post_id ) {
-							$text = $faker->url;
+							$text = 'https://example.com';
 							carbon_set_post_meta( $post_id, $meta_key, $text );
 						}
 						break;
