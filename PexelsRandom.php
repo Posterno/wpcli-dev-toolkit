@@ -47,7 +47,7 @@ class PexelsRandom extends Client {
 			'curated?' . http_build_query(
 				[
 					'per_page' => 1,
-					'page'     => 1,
+					'page'     => \Faker\Provider\Base::numberBetween( 1, 1000 ),
 				]
 			)
 		);
